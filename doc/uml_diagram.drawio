@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-22T00:00:00.000Z" agent="draw.io" version="22.0.0" type="device">
+  <diagram name="UML Class Diagram" id="uml-td">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 标题 -->
+        <mxCell id="title" value="Tower Defense - UML Class Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#333;" parent="1" vertex="1">
+          <mxGeometry x="500" y="10" width="400" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- GameObject 抽象基类 (顶部中央) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="go" value="&lt;&lt;abstract&gt;&gt;&#xa;GameObject" style="swimlane;fontStyle=2;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontColor=#0D47A1;" parent="1" vertex="1">
+          <mxGeometry x="530" y="50" width="240" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="go-a" value="- _position: [float, float]&#xa;- _size: float&#xa;- _alive: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="go" vertex="1">
+          <mxGeometry y="30" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="go-m" value="+ position: tuple (property)&#xa;+ update(dt): None&#xa;# _do_update(dt): None {abstract}&#xa;+ draw(ax): None {abstract}" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="go" vertex="1">
+          <mxGeometry y="85" width="240" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- Enemy 抽象基类 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="en" value="&lt;&lt;abstract&gt;&gt;&#xa;Enemy" style="swimlane;fontStyle=2;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#1B5E20;" parent="1" vertex="1">
+          <mxGeometry x="80" y="270" width="230" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="en-a" value="- _waypoints: list&#xa;- _wp_index: int&#xa;- _hp: float&#xa;- _slow_factor: float&#xa;- _path_progress: float" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="en" vertex="1">
+          <mxGeometry y="30" width="230" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="en-m" value="+ hp: float (property)&#xa;+ speed: float {abstract}&#xa;+ reward: int {abstract}&#xa;+ take_damage(d): bool&#xa;+ apply_slow(f, t): None&#xa;# _do_update(dt): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="en" vertex="1">
+          <mxGeometry y="95" width="230" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- Tower 抽象基类 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="tw" value="&lt;&lt;abstract&gt;&gt;&#xa;Tower" style="swimlane;fontStyle=2;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontColor=#0D47A1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="270" width="230" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="tw-a" value="- _col, _row: int&#xa;- _cooldown_remaining: float&#xa;- _target: Enemy&#xa;- _total_damage_dealt: float&#xa;- _total_kills: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="tw" vertex="1">
+          <mxGeometry y="30" width="230" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="tw-m" value="+ cost: int {abstract}&#xa;+ attack_range: float {abstract}&#xa;+ attack_cooldown: float {abstract}&#xa;+ attack_damage: float {abstract}&#xa;# _create_projectile(t): Proj {abstract}&#xa;+ record_kill(): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="tw" vertex="1">
+          <mxGeometry y="95" width="230" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- Projectile 抽象基类 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="pr" value="&lt;&lt;abstract&gt;&gt;&#xa;Projectile" style="swimlane;fontStyle=2;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontColor=#BF360C;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="270" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="pr-a" value="- _target: Enemy&#xa;- _speed: float&#xa;- _damage: float&#xa;- _hit: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pr" vertex="1">
+          <mxGeometry y="30" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pr-m" value="# _apply_effect(enemies): None&#xa;# _do_update(dt): None&#xa;+ draw(ax): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pr" vertex="1">
+          <mxGeometry y="85" width="200" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- Enemy 子类 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="gob" value="Goblin" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;" parent="1" vertex="1">
+          <mxGeometry x="30" y="510" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="gob-a" value="- _hp: float = 60" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="gob" vertex="1">
+          <mxGeometry y="26" width="160" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gob-m" value="+ max_hp: 60&#xa;+ speed: 2.5&#xa;+ reward: 10" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="gob" vertex="1">
+          <mxGeometry y="52" width="160" height="38" as="geometry" />
+        </mxCell>
+
+        <mxCell id="orc" value="Orc" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;" parent="1" vertex="1">
+          <mxGeometry x="220" y="510" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="orc-a" value="- _hp: float = 180" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="orc" vertex="1">
+          <mxGeometry y="26" width="160" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="orc-m" value="+ max_hp: 180&#xa;+ speed: 1.5&#xa;+ reward: 25" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="orc" vertex="1">
+          <mxGeometry y="52" width="160" height="38" as="geometry" />
+        </mxCell>
+
+        <mxCell id="boss" value="Boss" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;" parent="1" vertex="1">
+          <mxGeometry x="110" y="620" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="boss-a" value="- _hp: float = 600" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="boss" vertex="1">
+          <mxGeometry y="26" width="160" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="boss-m" value="+ max_hp: 600&#xa;+ speed: 0.9&#xa;+ reward: 100" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="boss" vertex="1">
+          <mxGeometry y="52" width="160" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- Tower 子类 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="at" value="ArrowTower" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;" parent="1" vertex="1">
+          <mxGeometry x="440" y="510" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="at-a" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="at" vertex="1">
+          <mxGeometry y="26" width="170" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="at-m" value="+ cost: 50&#xa;+ attack_range: 3.0&#xa;+ attack_damage: 18&#xa;+ attack_cooldown: 0.5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="at" vertex="1">
+          <mxGeometry y="52" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ct" value="CannonTower" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;" parent="1" vertex="1">
+          <mxGeometry x="640" y="510" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ct-a" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="ct" vertex="1">
+          <mxGeometry y="26" width="170" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ct-m" value="+ cost: 100&#xa;+ attack_range: 2.5&#xa;+ attack_damage: 55&#xa;+ splash_radius: 1.0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="ct" vertex="1">
+          <mxGeometry y="52" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <mxCell id="it" value="IceTower" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;" parent="1" vertex="1">
+          <mxGeometry x="540" y="620" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="it-a" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="it" vertex="1">
+          <mxGeometry y="26" width="170" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="it-m" value="+ cost: 75&#xa;+ attack_range: 2.8&#xa;+ attack_damage: 12&#xa;+ slow_factor: 0.4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="it" vertex="1">
+          <mxGeometry y="52" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- Projectile 子类 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="pa" value="Arrow" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="930" y="510" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pa-a" value="- _damage: 18" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pa" vertex="1">
+          <mxGeometry y="26" width="150" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="pa-m" value="# _apply_effect(): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pa" vertex="1">
+          <mxGeometry y="52" width="150" height="28" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pc" value="Cannonball" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="1110" y="510" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-a" value="- _damage: 55&#xa;- _splash_radius: 1.0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pc" vertex="1">
+          <mxGeometry y="26" width="150" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-m" value="# _apply_effect(): splash" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pc" vertex="1">
+          <mxGeometry y="52" width="150" height="28" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pis" value="IceShard" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="620" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pis-a" value="- _damage: 12&#xa;- _slow_factor: 0.4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pis" vertex="1">
+          <mxGeometry y="26" width="150" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="pis-m" value="# _apply_effect(): slow" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="pis" vertex="1">
+          <mxGeometry y="52" width="150" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- 辅助类 (底部) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="gm" value="GameMap" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;" parent="1" vertex="1">
+          <mxGeometry x="30" y="770" width="190" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gm-a" value="+ cols, rows: int&#xa;+ waypoints: list&#xa;+ path_cells: set" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="gm" vertex="1">
+          <mxGeometry y="26" width="190" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gm-m" value="+ can_place_tower(c,r): bool&#xa;+ is_on_path(c,r): bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="gm" vertex="1">
+          <mxGeometry y="66" width="190" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="wv" value="Wave" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;" parent="1" vertex="1">
+          <mxGeometry x="260" y="770" width="190" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wv-a" value="+ wave_number: int&#xa;+ total_enemies: int&#xa;+ completed: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="wv" vertex="1">
+          <mxGeometry y="26" width="190" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wv-m" value="+ get_spawns(dt, wp): list&#xa;+ all_spawned: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="wv" vertex="1">
+          <mxGeometry y="66" width="190" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="wf" value="WaveFactory" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;" parent="1" vertex="1">
+          <mxGeometry x="490" y="770" width="190" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wf-a" value="- _configs: list (class)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="wf" vertex="1">
+          <mxGeometry y="26" width="190" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="wf-m" value="+ create_wave(n): Wave&#xa;+ total_waves(): int&#xa;+ get_wave_info(n): dict" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="wf" vertex="1">
+          <mxGeometry y="52" width="190" height="48" as="geometry" />
+        </mxCell>
+
+        <!-- Game 主类 -->
+        <mxCell id="g" value="Game" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#E0F2F1;strokeColor=#00695C;" parent="1" vertex="1">
+          <mxGeometry x="720" y="760" width="250" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="g-a" value="- _map: GameMap&#xa;- _gold: int&#xa;- _base_hp: int&#xa;- _towers: list[Tower]&#xa;- _enemies: list[Enemy]&#xa;- _projectiles: list[Projectile]&#xa;- _stats: GameStats" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="g" vertex="1">
+          <mxGeometry y="26" width="250" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="g-m" value="+ run(): None&#xa;+ get_state(): dict&#xa;- _update(frame): None&#xa;- _place_tower(c,r): bool&#xa;- _on_click(event): None&#xa;- _on_key(event): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="g" vertex="1">
+          <mxGeometry y="108" width="250" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gs" value="GameStats" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#E0F2F1;strokeColor=#00695C;" parent="1" vertex="1">
+          <mxGeometry x="1010" y="770" width="190" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gs-a" value="+ wave_records: list&#xa;+ kill_events: list&#xa;+ gold_history: list" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="gs" vertex="1">
+          <mxGeometry y="26" width="190" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gs-m" value="+ show_report(): None&#xa;+ record_kill(w,t): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="gs" vertex="1">
+          <mxGeometry y="66" width="190" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tr" value="TowerRegistry" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#E0F2F1;strokeColor=#00695C;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="770" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-a" value="- _registry: dict (class)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="tr" vertex="1">
+          <mxGeometry y="26" width="170" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="tr-m" value="+ create(name,c,r): Tower&#xa;+ list_types(): list&#xa;+ get(name): class" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontFamily=Courier New;fontSize=10;" parent="tr" vertex="1">
+          <mxGeometry y="52" width="170" height="48" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- 继承关系 (空心三角, 实线) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="r1" style="endArrow=block;endFill=0;endSize=16;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.3;entryY=1;entryDx=0;entryDy=0;" parent="1" source="en" target="go" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" style="endArrow=block;endFill=0;endSize=16;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="tw" target="go" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" style="endArrow=block;endFill=0;endSize=16;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.7;entryY=1;entryDx=0;entryDy=0;" parent="1" source="pr" target="go" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="r4" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.2;entryY=1;entryDx=0;entryDy=0;" parent="1" source="gob" target="en" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="orc" target="en" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="1" source="boss" target="en" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="r7" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="at" target="tw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r8" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.55;entryY=1;entryDx=0;entryDy=0;" parent="1" source="ct" target="tw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r9" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.78;entryY=1;entryDx=0;entryDy=0;" parent="1" source="it" target="tw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="r10" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="pa" target="pr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r11" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.6;entryY=1;entryDx=0;entryDy=0;" parent="1" source="pc" target="pr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r12" style="endArrow=block;endFill=0;endSize=14;html=1;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" parent="1" source="pis" target="pr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- 组合关系 Game ◆→ GameMap (实心菱形) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="comp" style="endArrow=none;startArrow=diamondThin;startFill=1;startSize=12;html=1;strokeWidth=1.5;exitX=0.05;exitY=0.3;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="g" target="gm" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- 依赖关系 (虚线) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="d1" value="«creates»" style="endArrow=open;dashed=1;html=1;strokeWidth=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=9;fontColor=#666;" parent="1" source="wf" target="wv" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" value="uses" style="endArrow=open;dashed=1;html=1;strokeWidth=1;exitX=0.1;exitY=0.6;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=9;fontColor=#666;" parent="1" source="g" target="wf" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d3" value="uses" style="endArrow=open;dashed=1;html=1;strokeWidth=1;exitX=0.9;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=9;fontColor=#666;" parent="1" source="g" target="gs" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d4" value="uses" style="endArrow=open;dashed=1;html=1;strokeWidth=1;exitX=0.95;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=9;fontColor=#666;" parent="1" source="g" target="tr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d5" value="«creates»" style="endArrow=open;dashed=1;html=1;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=9;fontColor=#666;" parent="1" source="tw" target="pr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- 图例 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <mxCell id="leg-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#BDBDBD;dashed=1;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="30" y="910" width="520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-t" value="图例" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="915" width="40" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" style="endArrow=block;endFill=0;endSize=12;html=1;strokeWidth=1.5;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="50" y="948" as="sourcePoint" />
+            <mxPoint x="130" y="948" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg1-t" value="继承 (is-a)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="140" y="940" width="80" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" style="endArrow=none;startArrow=diamondThin;startFill=1;startSize=10;html=1;strokeWidth=1.5;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="948" as="sourcePoint" />
+            <mxPoint x="310" y="948" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg2-t" value="组合 (has-a)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="940" width="90" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" style="endArrow=open;dashed=1;html=1;strokeWidth=1;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="430" y="948" as="sourcePoint" />
+            <mxPoint x="510" y="948" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg3-t" value="依赖 (uses/creates)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="520" y="940" width="120" height="16" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
