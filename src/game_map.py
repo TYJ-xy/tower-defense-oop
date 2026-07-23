@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """GameMap — 塔防地图管理.
 
 Composition: Game 拥有一个 GameMap 实例 (has-a, 而非 is-a).

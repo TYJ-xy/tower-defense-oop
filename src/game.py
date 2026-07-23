@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Game — 塔防游戏主循环.
 
 使用 matplotlib FuncAnimation 驱动游戏循环 + 键盘/鼠标交互.
@@ -247,7 +248,11 @@ class Game:
             elif enemy.alive and enemy.has_reached_base():
                 # 敌人到达基地
                 self._base_hp -= enemy.damage_to_base
+                enemy._hp = 0  # 确保血量归零, 避免HP条残留
                 enemy.kill()
+                # 计入波次完成统计, 防止因漏网之鱼导致波次永不结束
+                if self._current_wave:
+                    self._current_wave.enemies_killed += 1
 
     def _update_towers(self, dt: float) -> None:
         """更新所有塔 (攻击逻辑)."""
@@ -353,7 +358,7 @@ class Game:
         bx, by = self._map.base
         ax.scatter(bx + 0.5, by + 0.5, s=500, c='#FFD700', marker='*',
                    edgecolors='#FF8C00', linewidths=1.5, zorder=15)
-        ax.text(bx + 0.5, by - 0.3, f'❤️{self._base_hp}',
+        ax.text(bx + 0.5, by - 0.3, f'HP:{self._base_hp}',
                 ha='center', fontsize=9, color='white', fontweight='bold',
                 zorder=20)
 
@@ -383,10 +388,11 @@ class Game:
                     ha='center', fontsize=7, color='white', fontweight='bold',
                     zorder=15)
 
-        # ── 敌人 ──
-        for enemy in self._enemies:
-            if enemy.alive:
-                enemy.draw(ax)
+        # ── 敌人 (进度大的后画, 确保前线敌人血条不被后方满血怪遮挡) ──
+        alive_enemies = [e for e in self._enemies if e.alive]
+        alive_enemies.sort(key=lambda e: e.path_progress)
+        for enemy in alive_enemies:
+            enemy.draw(ax)
 
         # ── 子弹 ──
         for proj in self._projectiles:
@@ -402,7 +408,7 @@ class Game:
 
         # ── 游戏结束覆盖 ──
         if self._game_state in ('victory', 'defeat'):
-            text = '🎉 胜利!' if self._game_state == 'victory' else '💀 失败!'
+            text = 'VICTORY!' if self._game_state == 'victory' else 'DEFEAT!'
             color = '#FFD700' if self._game_state == 'victory' else '#F44336'
             ax.text(0.5, 0.5, text, transform=ax.transAxes,
                     fontsize=48, color=color, fontweight='bold',
@@ -423,22 +429,22 @@ class Game:
         gap = 6
 
         # ── 标题 ──
-        ax.text(50, y, '🏰 塔防指挥中心', ha='center', fontsize=14,
+        ax.text(50, y, '塔防指挥中心', ha='center', fontsize=14,
                 color='#FFD700', fontweight='bold')
         y -= gap * 2
 
         # ── 游戏数据 ──
         info_lines = [
-            f'💰 金币: {self._gold}',
-            f'❤️ 基地血量: {self._base_hp} / 10',
-            f'🌊 波次: {self._wave_number} / {WaveFactory.total_waves()}',
-            f'⭐ 得分: {self._score}',
-            f'🗼 塔数: {len(self._towers)}',
+            f'金币: {self._gold}',
+            f'基地血量: {self._base_hp} / 10',
+            f'波次: {self._wave_number} / {WaveFactory.total_waves()}',
+            f'得分: {self._score}',
+            f'塔数: {len(self._towers)}',
         ]
 
         if self._current_wave and self._game_state == 'playing':
             info_lines.append(
-                f'👾 剩余敌人: {self._current_wave.total_enemies - self._current_wave.enemies_killed}'
+                f'剩余敌人: {self._current_wave.total_enemies - self._current_wave.enemies_killed}'
             )
 
         for line in info_lines:
@@ -452,8 +458,8 @@ class Game:
         state_map = {
             'idle': ('按空格键开始下一波', '#4CAF50'),
             'playing': ('战斗中...', '#FF9800'),
-            'victory': ('✨ 全部波次清除!', '#FFD700'),
-            'defeat': ('💀 基地已陷落', '#F44336'),
+            'victory': ('全部波次清除!', '#FFD700'),
+            'defeat': ('基地已陷落', '#F44336'),
         }
         state_text, state_color = state_map.get(
             self._game_state, ('', 'white'))
@@ -471,7 +477,7 @@ class Game:
         tower_keys = {'arrow': '[1]', 'cannon': '[2]', 'ice': '[3]'}
 
         for name, cost, type_name in tower_types:
-            sel_marker = '▶ ' if name == self._selected_tower else '  '
+            sel_marker = '> ' if name == self._selected_tower else '  '
             color = tower_colors.get(name, 'white')
             ax.text(8, y,
                     f'{sel_marker}{tower_keys[name]} {type_name}',
@@ -515,11 +521,11 @@ class Game:
         """生成游戏区左上角状态文本."""
         if self._game_state == 'playing':
             return (f'波次 {self._wave_number} | '
-                    f'💰{self._gold} | ❤️{self._base_hp}')
+                    f'G:{self._gold} | HP:{self._base_hp}')
         elif self._game_state == 'idle':
-            return f'准备阶段 | 💰{self._gold} | 按空格开始第{self._wave_number + 1}波'
+            return f'准备阶段 | G:{self._gold} | 按空格开始第{self._wave_number + 1}波'
         else:
-            return f'💰{self._gold} | ❤️{self._base_hp}'
+            return f'G:{self._gold} | HP:{self._base_hp}'
 
     # ═══════════════════════════════════════════════════════════
     # 公共接口

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """GameStats — 游戏数据分析模块.
 
 使用 pandas 记录游戏全程数据, matplotlib 生成统计图表.
@@ -12,6 +13,10 @@
 from typing import List, Optional
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei',
+                                            'DejaVu Sans']
+matplotlib.rcParams['axes.unicode_minus'] = False
 import matplotlib.pyplot as plt
 
 

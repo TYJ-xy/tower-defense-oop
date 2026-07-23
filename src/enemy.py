@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Enemy 继承体系.
 
 策略模式 + 继承:
@@ -154,25 +155,34 @@ class Enemy(GameObject, ABC):
 
     # ── 渲染 ─────────────────────────────────────────────────
 
+    def _hp_color(self) -> str:
+        """根据血量比例返回颜色: 绿(>60%) → 黄(30-60%) → 红(<30%)."""
+        r = self.hp_ratio
+        if r > 0.6:
+            return '#4CAF50'  # 绿色
+        elif r > 0.3:
+            return '#FFC107'  # 黄色
+        else:
+            return '#F44336'  # 红色
+
     def draw(self, ax) -> None:
         """绘制敌人 (圆形 + 血条)."""
         # 主体
         circle = ax.scatter(self.x, self.y, s=self._size * 800,
                            c=self.color, edgecolors='black',
                            linewidths=0.5, zorder=10, marker='o')
-        # 血条 (敌人上方)
-        if self.hp_ratio < 1.0:
-            bar_w = 0.6
-            bar_h = 0.06
-            bar_y = self.y + 0.35
-            # 背景条
-            ax.add_patch(plt.Rectangle(
-                (self.x - bar_w/2, bar_y), bar_w, bar_h,
-                color='darkred', zorder=9))
-            # 血量条
-            ax.add_patch(plt.Rectangle(
-                (self.x - bar_w/2, bar_y), bar_w * self.hp_ratio, bar_h,
-                color='limegreen', zorder=10))
+        # 血条 (敌人上方, 加粗 + 颜色随血量变化)
+        bar_w = 0.6
+        bar_h = 0.10
+        bar_y = self.y + 0.38
+        # 背景条
+        ax.add_patch(plt.Rectangle(
+            (self.x - bar_w/2, bar_y), bar_w, bar_h,
+            color='#333333', zorder=9))
+        # 血量条 (颜色随 HP 比例变化)
+        ax.add_patch(plt.Rectangle(
+            (self.x - bar_w/2, bar_y), bar_w * self.hp_ratio, bar_h,
+            color=self._hp_color(), zorder=10, ec='#555555', linewidth=0.3))
         return circle
 
 

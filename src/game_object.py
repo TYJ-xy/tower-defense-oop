@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """GameObject 抽象基类.
 
 Template Method 模式:

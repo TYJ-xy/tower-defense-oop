@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """波次系统 — 工厂模式.
 
 WaveFactory 使用注册表模式管理波次配置.
@@ -105,7 +106,7 @@ class Wave:
         self.enemies_killed = 0
         self._elapsed = 0.0
         self._spawn_index = 0
-        self._counters: Dict[str, int] = {}  # 每类敌人已生成计数
+        self._counters: Dict[tuple, int] = {}  # (spawn_index, etype) → 已生成计数
 
     @property
     def all_spawned(self) -> bool:
@@ -138,7 +139,10 @@ class Wave:
                     raise ValueError(f"未知敌人类型: {etype}")
 
                 # 生成该组敌人 (逐个, 间隔 0.3 秒)
-                already = self._counters.get(etype, 0)
+                # 使用 (spawn_index, etype) 作为 key，避免同类型不同批次
+                # 之间的计数器互相干扰 (如第2波两批哥布林)
+                key = (self._spawn_index, etype)
+                already = self._counters.get(key, 0)
                 to_spawn = min(count - already,
                                max(1, int(dt / 0.3)) if already < count else 0)
 
@@ -146,8 +150,8 @@ class Wave:
                     enemy = enemy_cls(waypoints)
                     spawned.append(enemy)
 
-                self._counters[etype] = already + to_spawn
-                if self._counters[etype] >= count:
+                self._counters[key] = already + to_spawn
+                if self._counters[key] >= count:
                     self._spawn_index += 1
             else:
                 break

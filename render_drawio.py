@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """将 draw.io UML 文件渲染为 PNG.
 
 解析 .drawio (mxGraphModel XML) 文件，

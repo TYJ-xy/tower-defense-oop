@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Tower 继承体系.
 
 策略模式核心:
@@ -51,7 +52,10 @@ class Tower(GameObject, ABC):
         super().__init__(col + 0.5, row + 0.5, size=0.45)
         self._col = col
         self._row = row
-        self._cooldown_remaining = 0.0
+        # 根据放置位置错开初始冷却, 避免多塔同时开火
+        # 导致伤害集中在同一帧爆发 ("血条一下掉很多")
+        offset = ((col * 7 + row * 13) % 100) / 100.0
+        self._cooldown_remaining = offset * self.attack_cooldown
         self._target: Optional[Enemy] = None
         self._total_damage_dealt = 0.0
         self._total_kills = 0

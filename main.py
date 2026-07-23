@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """main.py — 塔防游戏入口.
 
 启动即进入游戏.
@@ -21,20 +22,40 @@
     - 基地血量归零则失败
 """
 
+import sys
+import os
+
 from src.game import Game
+
+
+def _setup_console_encoding():
+    """配置 Windows 控制台 UTF-8 编码, 防止中文乱码."""
+    # 设置环境变量强制 Python 使用 UTF-8
+    if sys.platform == 'win32':
+        os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
+        # 尝试重新配置标准输出编码
+        for stream_name in ('stdout', 'stderr'):
+            stream = getattr(sys, stream_name, None)
+            if stream and hasattr(stream, 'reconfigure'):
+                try:
+                    stream.reconfigure(encoding='utf-8', errors='replace')
+                except Exception:
+                    pass
 
 
 def main():
     """启动游戏."""
+    _setup_console_encoding()
+
     print("=" * 50)
-    print("  🏰 塔防游戏 — Tower Defense")
+    print("  塔防游戏 -- Tower Defense")
     print("=" * 50)
     print()
     print("  操作提示:")
-    print("    1/2/3 — 选择塔类型")
-    print("    点击网格 — 放置塔")
-    print("    空格键 — 开始下一波")
-    print("    Q — 退出")
+    print("    1/2/3 -- 选择塔类型")
+    print("    点击网格 -- 放置塔")
+    print("    空格键 -- 开始下一波")
+    print("    Q -- 退出")
     print()
     print("  提示: 先在路径旁放置几个箭塔,")
     print("        再按空格开始第一波!")

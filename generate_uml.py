@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """生成 UML 类图 (使用 matplotlib).
 
 产生 doc/uml_diagram.png 用于嵌入项目报告.
