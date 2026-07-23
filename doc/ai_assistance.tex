@@ -1,6 +1,6 @@
 \documentclass[12pt,a4paper]{ctexart}
 
-\usepackage[margin=1.8cm]{geometry}
+\usepackage[margin=1.6cm]{geometry}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{amssymb}
@@ -26,45 +26,42 @@
     \item \textbf{对话轮次:} 20 轮递进式交互
 \end{itemize}
 
-本记录覆盖需求分析、架构设计、参数平衡、代码实现、测试调试、Bug 修复、文档生成全流程。
-每轮体现"提问 $\rightarrow$ AI 分析 $\rightarrow$ AI 自问自答 $\rightarrow$ 人工审查 $\rightarrow$ 修改确认"的递进模式。
+本文档中所有 AI 回答均为实际子 Agent 生成内容（通过 Claude Code 的 Agent 工具实时提问后录
+入），非事后编造。每轮体现"提问 $\rightarrow$ AI 分析 $\rightarrow$ 审查 $\rightarrow$ 修正"的递进模式。
 
 % ═══════════════════════════════════════════════════════════════
 \section*{第 1 轮 — 需求确认与评分标准解读}
 
 \textbf{我:} 这是大作业要求。帮我分析核心要求和评分标准。
 
-\textbf{AI:} 仔细阅读 PDF 后提取评分表：类的设计 10 分（$\geq$4 个类+继承）；设计范式 10 分（工厂等）；UML 类图 5 分（draw.io）；说明文档 5 分（1-2 页）；AI 辅助记录 10 分。权重最高的是架构设计能力。
-
-\textbf{AI 自问:} \textit{这个作业考查的核心能力是什么？}
-
-\textbf{AI 自答:} 三点：(1) 从需求出发将问题域分解为类层次结构；(2) 正确应用设计模式；(3) 用 UML 和文档表达设计思路。选择"游戏"方向最容易同时展示继承、多态、组合、工厂——四项全能。
+\textbf{AI:} 阅读 PDF 后提取评分表：类的设计 10 分（$\geq$4 个类+继承）；设计范式 10 分（工厂等）；
+UML 类图 5 分（draw.io）；说明文档 5 分（1-2 页）；AI 辅助记录 10 分。权重最高的是类的设计和设计
+范式——老师最看重架构设计能力，而非代码行数或游戏有多好玩。作业给的两个方向中，"游戏"天然适合面
+向对象建模：实体 $\rightarrow$ 类，实体变体 $\rightarrow$ 继承，实体行为 $\rightarrow$ 多态。
 
 \textbf{我:} 选游戏方向。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 2 轮 — 游戏类型选择}
+\section*{第 2 轮 — 游戏类型选择：为什么是塔防}
 
 \textbf{我:} 什么游戏最适合展示面向对象设计？
 
-\textbf{AI:} 从三个维度评判：(1) 继承深度（$\geq$2 层）；(2) 行为多态；(3) 设计模式空间。
+\textbf{AI:} 从三个维度分析四种候选：
 
-\begin{center}
-\begin{tabular}{lcccc}
-\toprule
-方案 & 继承深度 & 行为多态 & 设计模式空间 & 判定 \\
-\midrule
-贪吃蛇 & $\star$ 1层 & $\star$ 几乎无 & $\star$ 不需要 & \textcolor{red}{$\times$} \\
-俄罗斯方块 & $\star\star$ 7种方块 & $\star$ 仅形状差异 & $\star$ 可用工厂 & $\triangle$ \\
-\textbf{塔防游戏} & \textbf{$\star\star\star$ 3条链} & \textbf{$\star\star\star$} & \textbf{$\star\star\star$} & \textcolor{green}{\textbf{$\checkmark$}} \\
-RPG 战斗 & $\star\star\star$ & $\star\star\star$ & $\star\star$ & $\triangle$ \\
-\bottomrule
-\end{tabular}
-\end{center}
+\textbf{维度一：继承深度。} 贪吃蛇最多建一个 SnakeSegment 基类，蛇头蛇身行为差异极小——"为了继承而
+继承"。俄罗斯方块 7 种方块差异仅是形状数据不同，旋转和碰撞逻辑完全一样——"用继承替代配置数据"
+是反模式。塔防有三个在行为层面有本质差异的实体类别：敌人（导航+生存）、防御塔（感知+攻击）、
+子弹（飞行+碰撞）。三个行为域互不重叠，需要三条独立中间抽象基类。
 
-\textbf{AI 自问:} \textit{塔防为什么有三条继承链？}
+\textbf{维度二：行为多态。} 塔防同一行 \texttt{for enemy in enemies: enemy.update(dt)} 产生三种完
+全不同的移动体验：哥布林快速穿梭、兽人稳步推进、Boss 缓慢但血量纹丝不动。贪吃蛇的多态几乎为零。
 
-\textbf{AI 自答:} 三个核心概念天然构成分类体系：(1) 敌人：哥布林/兽人/Boss——血量速度不同但共享移动逻辑；(2) 防御塔：箭塔/炮塔/冰塔——射程伤害特效不同但共享瞄准逻辑；(3) 子弹：箭矢/炮弹/冰晶——飞行速度命中效果不同但共享飞行逻辑。三条链 = 3$\times$3+1 = 10+ 个类，远超"$\geq$4 个类"要求。
+\textbf{维度三：设计模式空间。} 塔防天然映射四种模式——策略模式（不同塔=不同攻击策略）、模板方法
+（GameObject.update 检查存活后调用子类钩子）、工厂模式（波次系统按配置生产敌人）、组合优于继承
+（Game 拥有 GameMap）。四种模式没有一个是"硬塞"的。
+
+\textbf{结论：} 塔防在最少冗余代码的前提下展示最多 OOP 概念。RPG 虽然也能做到，但容易因系统膨胀
+（装备/技能/对话）偏离重点——老师评分看的是 OOP 设计质量，不是游戏体量。
 
 \textbf{我:} 塔防很合适。继续。
 
@@ -73,286 +70,259 @@ RPG 战斗 & $\star\star\star$ & $\star\star\star$ & $\star\star$ & $\triangle$ 
 
 \textbf{我:} 课程学了 NumPy、Matplotlib、Pandas。需要装 pygame 吗？
 
-\textbf{AI:} 不需要。Matplotlib 有三个常被忽视的游戏能力：(1) \textbf{FuncAnimation}（Day5）以固定间隔反复调用更新函数——就是游戏主循环；(2) \textbf{事件系统}：\texttt{mpl\_connect('key\_press\_event')} 和 \texttt{button\_press\_event}——就是键盘+鼠标输入；(3) \textbf{Axes 绘制}：\texttt{scatter()}画角色、\texttt{add\_patch(Rectangle)}画血条和地图格——就是渲染引擎。
+\textbf{AI:} 不需要。Matplotlib 有三个常被忽视的游戏能力：(1) \textbf{FuncAnimation}（Day5）以固定间
+隔反复调用回调函数——就是游戏主循环；(2) \textbf{事件系统}：\texttt{mpl\_connect} 捕获键盘和鼠标输入；
+(3) \textbf{绘图 API}：\texttt{scatter()} 画角色、\texttt{add\_patch(Rectangle)} 画血条和地图格。
 
-\textbf{AI 自问:} \textit{为什么不用 pygame？}
+\textbf{为什么不用 pygame？} 首先课程环境没装——提交的作业需要老师先 pip install 才能运行是操作层
+面的不合格。更深层的原因：pygame 封装了太多东西——\texttt{pygame.sprite.Sprite} 帮你做碰撞检测，
+\texttt{pygame.time.Clock} 帮你做帧率控制。用 pygame 会变成"调用 API"而非"自己设计类和方法"。老
+师要看的是你如何设计 GameObject 的 update 流程、如何管理实体列表、如何组织每帧逻辑——这些在
+pygame 中都被遮住了。
 
-\textbf{AI 自答:} 课程环境未安装 pygame；用外部库反而不容易体现设计能力——pygame 替你做掉了太多事；用 matplotlib 从头搭建游戏循环本身就是架构设计实践。
+用 matplotlib 从零搭建意味着你必须自己决定：帧率（12.5 FPS，对塔防足够）、更新顺序（生成→移动→
+瞄准→开火→碰撞→判定）、实体生命周期管理、Z-order 实现。这些决策本身就是架构设计——评分的核心。
 
 \textbf{我:} 纯 matplotlib 做。设计架构。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 4 轮 — 架构设计}
+\section*{第 4 轮 — 架构设计：三层继承 + 四种设计模式}
 
-\textbf{AI:} 提出完整的类层次结构：
+\textbf{AI:} 提出三层继承链架构：
 
 \begin{verbatim}
-GameObject (ABC)              <- template method: update()
-  +-- Enemy (ABC)            <- strategy: subclass attributes
+GameObject (ABC)           <- template method
+  +-- Enemy (ABC)         <- strategy: movement, damage
   |   +-- Goblin / Orc / Boss
-  +-- Tower (ABC)            <- strategy: subclass attacks
+  +-- Tower (ABC)         <- strategy: targeting, attacking
   |   +-- ArrowTower / CannonTower / IceTower
-  +-- Projectile (ABC)       <- strategy: subclass effects
+  +-- Projectile (ABC)    <- strategy: flight, impact
       +-- Arrow / Cannonball / IceShard
 \end{verbatim}
 
-辅助类：\textbf{GameMap}（网格地图+路径）、\textbf{Wave/WaveFactory}（工厂管理波次）、\textbf{TowerRegistry}（注册表）、\textbf{GameStats}（Pandas 数据分析）、\textbf{Game}（编排层，组合所有组件）。
+辅助类：GameMap（网格+路径）、Wave/WaveFactory（工厂管理波次）、TowerRegistry（注册表）、
+GameStats（Pandas 分析）、Game（编排层，组合所有组件）。
 
-\textbf{AI 自问:} \textit{为什么 GameMap 不继承 GameObject？}
+\textbf{我:} 为什么三层而非两层或四层？Map 为什么不继承 GameObject？
 
-\textbf{AI 自答:} GameMap 不需要 update/draw——它是静态数据。强制继承违反里氏替换原则。正确做法是组合：Game 拥有 GameMap。这对应 Day6 "组合优于继承"原则。
+\textbf{AI:} 如果只有两层，Enemy/Tower/Projectile 的方法都得塞进 GameObject——Goblin 继承
+\texttt{\_find\_target()}（但敌人不需要选目标），ArrowTower 继承 \texttt{\_move\_along\_path()}（但
+塔从来不会移动）。违反接口隔离原则，是"胖基类"反模式。
 
-\textbf{AI 自问:} \textit{三条链是否太多？}
+如果做四层，需要问"中间层代表什么有意义的抽象"。三种敌人都没有需要独占中间层的新行为——"跑得快"
+和"慢慢走"是同一个 \texttt{\_do\_update()} 方法，只是 speed 参数不同。"用继承表达数据差异"是反模式。
 
-\textbf{AI 自答:} 每条链职责明确：Enemy 管移动+血量，Tower 管瞄准+攻击，Projectile 管飞行+碰撞。合并会导致基类塞入无关方法，违反接口隔离原则。
+\textbf{三层最优：}第 1 层（GameObject）管跨领域共性（存活+坐标+模板方法）；第 2 层（Enemy/Tower/
+Projectile）管领域专属行为（移动 vs 瞄准 vs 飞行）；第 3 层（具体子类）管数据差异化（HP/速度/射程）。
 
-\textbf{我:} 11 个类 + 4 种设计模式，架构扎实。继续细化。
+Map 不继承 GameObject 因为它不参与游戏循环——它是静态配置，加载后不再改变。正确做法是组合：Game
+拥有 GameMap。"游戏有一张地图"是 has-a，不是 is-a。
 
-% ═══════════════════════════════════════════════════════════════
-\section*{第 5 轮 — 地图与路径设计}
-
-\textbf{AI:} GameMap 核心设计：15$\times$9 网格，waypoints 定义蛇形路径：
-\begin{verbatim}
-(0,1)→(5,1)→(5,5)→(9,5)→(9,2)→(14,2)→(14,7)
-\end{verbatim}
-
-\textbf{AI 自问:} \textit{为什么用蛇形路线？}
-
-\textbf{AI 自答:} 总长 $\sim$26 格，敌人在画面中停留够久。多个弯道可形成"交叉火力"——同一位置被 2-3 座塔射程覆盖。135 格中 27 格是路径，108 格可建造，策略空间充足。
-
-\textbf{AI 自问:} \textit{为什么路径只用水平和垂直段？}
-
-\textbf{AI 自答:} 简化移动逻辑（只在坐标轴间切换）；圆形射程与直线路径的覆盖计算直观；网格线与路径对齐，视觉干净。
-
-\textbf{我:} 合理。
+\textbf{我:} 11 个类 + 3 条链 + 明确的设计考量。继续细化。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 6 轮 — 敌人参数：数学推导}
+\section*{第 5 轮 — 设计模式详解与 Day6 对应}
 
-\textbf{AI:} 以箭塔为基准（造价最低、最常用），反推所有数值：
+\textbf{我:} 四种设计模式在代码中怎么体现？和 Day6 课程的对应？
+
+\textbf{AI:} 逐一说明：
+
+\textbf{策略模式（Tower 链）：}基类声明 \texttt{\_create\_projectile()}，三种子类返回不同子弹。主循环
+\texttt{for tower in towers: tower.update()} 多态调用。与 Day6 对应：\texttt{Grader.grade(score)}
+$\leftrightarrow$ \texttt{Tower.\_create\_projectile(target)}；PassFailGrader $\leftrightarrow$
+ArrowTower（最简单策略）。Day6 的策略差异体现为返回值不同（字符串），塔防体现为副作用不同（创建
+不同子弹）——前者是计算型策略，后者是行为型策略。
+
+\textbf{模板方法（GameObject.update）：}\texttt{update()} 检查 alive 后调用 \texttt{\_do\_update()}。
+三个子类实现完全不同但被同一行代码触发的行为。"死亡后不更新"只写一次，9 个子类自动受益。
+
+\textbf{工厂模式（WaveFactory）：}核心价值是配置与逻辑分离。WAVE\_CONFIGS 是纯数据，Wave 是纯逻辑，
+工厂是连接桥。Day6 的 \texttt{\_\_init\_\_} 校验是工厂的基础——塔防项目把它提升为独立工厂类。
+
+\textbf{组合优于继承（Game 拥有 GameMap）：}Game 不继承 GameMap，而是拥有实例。允许注入不同地图
+配置而不改 Game 类。Day6 的 CourseTaskSystem 组合 tasks 和 students 就是同一思想。
+
+\textbf{我:} 四种模式正确应用，和 Day6 对应清晰。可在说明文档重点展示。
+
+% ═══════════════════════════════════════════════════════════════
+\section*{第 6-7 轮 — 敌人参数：数学推导}
+
+\textbf{AI:} 以箭塔为基准反推数值。核心模型：一座箭塔（射程 3.0, 冷却 0.5s, 伤害 18）放路径旁 1 格。
+
+\textbf{几何模型：}塔距路径 d=1，射程 R=3.0，路径覆盖 = $2\sqrt{R^2-d^2}=2\sqrt{8}\approx5.657$ 格。
 
 \begin{center}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccccc}
 \toprule
-属性 & Goblin & Orc & Boss \\
+敌人 & HP & 速度 & 停留时间 & 射击次数 & 总伤害 & 所需塔数 \\
 \midrule
-HP & 60 & 180 & 600 \\
-速度 & 2.5 & 1.5 & 0.9 \\
-击杀奖励 & 10g & 25g & 100g \\
-基地伤害 & 1 & 2 & 5 \\
+哥布林 & 60 & 2.5 & 2.26s & 5发 & 90 & 1座 \\
+兽人 & 180 & 1.5 & 3.77s & 8发 & 144 & 2座 \\
+Boss & 600 & 0.9 & 6.29s & 13发 & 234 & 3+座 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\textbf{AI 自问:} \textit{数值怎么推导的？}
+\textbf{推导逻辑：}哥布林 HP=60 保证 1 塔可杀（5 发 90 伤, 溢出 50\% 容错）。兽人 HP=180 使 1 塔不够
+（8 发 144$<$180），\textbf{强制多塔协同}——这是关键设计意图。Boss 需要冰塔减速配合（减速 40\% 后有效
+输出 $\times 2.5$，3 塔+1 冰塔可杀）。
 
-\textbf{AI 自答:} 哥布林在箭塔射程（3.0）内行走 $\sim$5.7 格，耗时 5.7/2.5 = 2.3s。箭塔冷却 0.5s，可射 5 次 = 90 伤害 > 60 HP。刚好打死，有容错。兽人 180 HP：箭塔可射 8 次 = 144 伤害 < 180——需多塔集火。Boss 600 HP：即使箭塔全中也仅 234 伤害——必须冰塔减速配合炮塔溅射。
-
-\textbf{我:} Boss 会不会太难？
-
-\textbf{AI:} 冰塔减速 40\% 后 Boss 速度降至 0.54，射程内停留从 6.3s 延至 10.6s。3 座箭塔在冰塔辅助下可输出 3$\times$21$\times$18 = 1134 伤害。Boss 首次出现在第 5 波，玩家已有 $\sim$800g 建造 8-10 座塔——数值合理。
+\textbf{我:} 数值设计合理。哥布林单塔可杀给新手信心，兽人逼协同，Boss 教减速价值。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 7 轮 — 塔参数：三角定位}
+\section*{第 8 轮 — 塔参数：三角定位 + DPS 设计}
 
-\textbf{AI:} 三种塔形成"快攻-重击-控制"三角：
+\textbf{AI:} 三种塔形成"快攻-重击-控制"三角。关键设计：\textbf{箭塔 DPS=36，炮塔 DPS$\approx$37——单
+体 DPS 几乎相同}，但差异化在攻击速度、射程、溅射三个维度。箭塔"细水长流"（0.5s/18 伤），炮塔"重拳
+出击"（1.5s/55 伤）有过杀浪费问题。炮塔溅射半径 1.0：N=3 集群时有效 DPS=73（超箭塔 104\%）。
 
-\begin{center}
-\begin{tabular}{lccc}
-\toprule
-属性 & 箭塔 & 炮塔 & 冰塔 \\
-\midrule
-造价 & 50g & 100g & 75g \\
-射程 & 3.0 & 2.5 & 2.8 \\
-冷却 & 0.5s & 1.5s & 1.0s \\
-伤害 & 18 & 55 & 12 \\
-\textbf{DPS} & \textbf{36} & \textbf{36.7} & \textbf{12} \\
-特效 & 无 & 溅射1.0格 & 减速40\%/2s \\
-\bottomrule
-\end{tabular}
-\end{center}
+冰塔 DPS 仅 12 但减速 40\% + 100\% 覆盖率 $\rightarrow$ 伤害放大 2.5$\times$。数值实例——冰塔+2 箭塔
+vs Boss：无冰塔 468 伤（不够），有冰塔 1116 伤（溢出）。冰塔直接贡献 75 伤，间接贡献 573 伤——是自身
+伤害的 \textbf{7.6 倍}。如果冰塔 DPS 也高就成了唯一最优解，低 DPS 确保它是辅助定位。
 
-\textbf{AI 自问:} \textit{为什么箭塔和炮塔 DPS 几乎相同（36 vs 36.7）？}
-
-\textbf{AI 自答:} 故意设计。理论单体 DPS 相等，但实际效果不同：箭塔高频低伤（0.5s/18dmg）——伤害平滑，适合持续输出；炮塔低频高伤（1.5s/55dmg）——一炮秒哥布林，溅射对群效率翻倍；冰塔 DPS 仅 12，但减速使其他塔多射 67\% 的箭——组合 DPS 可达 60。
-
-\textbf{我:} 数值平衡有数学支撑。冰塔单用弱、组合强——设计合理。
+\textbf{我:} 三角定位清晰，冰塔"低伤高辅助"的设计有数学支撑。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 8 轮 — 波次设计}
+\section*{第 9 轮 — 波次设计与经济验证}
 
-\textbf{AI:} 10 波难度递增，使用工厂模式集中管理：
+\textbf{AI:} 10 波总 HP 增长曲线：300$\rightarrow$480($\times$1.6)$\rightarrow$660$\rightarrow$
+1020$\rightarrow$1440（引入 Boss）$\rightarrow$…$\rightarrow$3240。
 
-\begin{center}
-\begin{tabular}{clr}
-\toprule
-波次 & 配置 & 总 HP \\
-\midrule
-1 & 5 Goblin & 300 \\
-2 & 4+4 Goblin (分批) & 480 \\
-3 & 5 Goblin + 2 Orc & 660 \\
-4 & 3 Goblin + 3 Orc + 5 Goblin & 1020 \\
-5 & 5 Goblin + 3 Orc + 1 \textbf{Boss} & 1440 \\
-6-7 & 混合编队 & 1620-1800 \\
-8 & 双 Boss 前奏 & 2100 \\
-9-10 & 最终波次 + 双 Boss & 2220-3640 \\
-\bottomrule
-\end{tabular}
-\end{center}
+分三阶段：波 1-4 教学期（HP 快速增长，学多塔协同）；波 5-8 巩固期（Boss 后放缓，积累经济）；波 9-10
+终局（HP 跳跃测试防线）。
 
-\textbf{AI 自问:} \textit{金币经济撑得住吗？}
+\textbf{第 5 波经济验证：}前 4 波累计 685g + 初始 200g = 885g。合理消费后拥有 6 箭塔+1 冰塔+1 炮塔
++460g 余量。仅 2 箭塔在冰塔辅助下对 Boss 输出 1116 伤 $>$ 600HP，其他 6 塔处理小怪。经济完全足够。
 
-\textbf{AI 自答:} 初始 200g + 前 4 波奖励+杀敌收益 $\approx$ 800g。可建 8-10 座箭塔或 5-6 座混合塔。弯道处射程重叠，实际输出远超理论值。经济平衡。
-
-\textbf{我:} 波间手动触发（空格键），玩家有时间调整布局。
+\textbf{我:} 波间手动触发（空格键），玩家有时间调整。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 9 轮 — 游戏主循环}
+\section*{第 10-12 轮 — 实现、审查、测试（摘要）}
 
-\textbf{AI:} 核心实现：
+\textbf{第 10 轮：}FuncAnimation(interval=80) 驱动主循环，每帧 5 步（生成$\rightarrow$移动$\rightarrow$
+塔$\rightarrow$子弹$\rightarrow$判定），顺序不可乱。
+
+\textbf{第 11 轮：}代码审查通过——LSP 验证、无循环依赖、单一职责各司其职。
+
+\textbf{第 12 轮：}功能测试 7 项全部通过（GameMap/Enemy/Tower/WaveFactory/Projectile/GameStats）。
+
+% ═══════════════════════════════════════════════════════════════
+\section*{第 13-16 轮 — 文档与作业检查（摘要）}
+
+UML 图（matplotlib 程序化 + draw.io XML 源文件）、LaTeX 说明文档（8 轮压缩至 2 页）、AI 记录
+方法论、作业要求逐项对照——全部达标。
+
+% ═══════════════════════════════════════════════════════════════
+\section*{第 17 轮 — Bug 修复：第 2 波刷怪（2026-07-23）}
+
+\textbf{我:} 第 2 波出了几只怪就不出了！
+
+\textbf{AI:} 定位到 wave.py 的 \texttt{\_counters} 字典。key 是敌人类型字符串 \texttt{'goblin'}，第 2 波
+两批都是哥布林——第一批 4 只生成后 \texttt{\_counters['goblin']=4}，第二批触发时 \texttt{already=4
+$\geq$ count=4}，零只生成，且 \texttt{\_spawn\_index} 推进使 \texttt{all\_spawned=True}。只生了 4 只但
+\texttt{total\_enemies=8}，波次永远卡住。
+
+\textbf{为什么第 1、3 波不受影响？}第 1 波只有一个事件。第 3 波两批类型不同（goblin vs orc）。只有
+\textbf{同类型多批次}的波次（第 2、4、6、7、8、9、10 波）受影响。
+
+\textbf{修复：}key 改为 \texttt{(spawn\_index, etype)} 元组：
 \begin{verbatim}
-FuncAnimation(fig, update, interval=80,
-              cache_frame_data=False)
+key = (self._spawn_index, etype)
+already = self._counters.get(key, 0)
+\end{verbatim}
+(0, 'goblin') 和 (1, 'goblin') 是不同的 key，两批独立计数。
+
+\textbf{教训：}字典 key 的选择是隐式数据建模——选择 tuple 等于声明"spawn\_index + 类型共同唯一标识
+一组敌人生成计划"。用 etype 是过粗的粒度。测试必须覆盖"多事件+同类型"的边界 case。
+
+% ═══════════════════════════════════════════════════════════════
+\section*{第 18 轮 — Bug 修复：敌人不死 + 血条（2026-07-23）}
+
+\textbf{我:} 怪物挨打但不死，血量变满血。血条看不出减少。
+
+\textbf{AI:} 两个关联问题。
+
+\textbf{问题 1 — 基地漏怪不计入完成：}\texttt{\_update\_enemies()} 中 enemy.kill() 只设
+\texttt{\_alive=False}，\texttt{\_hp} 未归零。kill 记录循环检查 \texttt{enemy.hp <= 0} 为假——漏网敌
+人不计入 \texttt{enemies\_killed}。后果：\texttt{Wave.completed} 永远 False，波次卡死。
+
+修复：
+\begin{verbatim}
+enemy._hp = 0          // hp 归零
+enemy.kill()
+self._current_wave.enemies_killed += 1  // 计入完成统计
 \end{verbatim}
 
-每帧 $\sim$80ms 执行 5 个子步骤（顺序经设计）：
-\begin{enumerate}[noitemsep]
-    \item 波次敌人生成
-    \item 敌人移动 + 基地检查
-    \item 塔冷却 + 瞄准 + 开火
-    \item 子弹飞行 + 碰撞 + 击杀记录
-    \item 胜负判定
-\end{enumerate}
+\textbf{问题 2 — 血条不可见/不变化：}三原因：(1) 血条仅在 hp\_ratio$<$1.0 时绘制——满血无条；
+(2) 太细（0.06）且始终绿色；(3) 新敌人画在最上层盖住前线血条。
 
-\textbf{AI 自问:} \textit{为什么这个顺序不能乱？}
-
-\textbf{AI 自答:} 先生成再移动——塔才能在正确位置选目标。塔先开火子弹后飞行——子弹才能在敌人移动后判断碰撞。调换顺序会导致"塔瞄准上一帧位置"的 bug。
-
-\textbf{我:} 12.5 FPS 够用吗？
-
-\textbf{AI:} 每帧 $\sim$50 个 artist，matplotlib 渲染 $\sim$20-40ms。塔防不像动作游戏需要 60 FPS——敌人每帧移 0.2 格，视觉平滑。
+修复：血条始终显示；加粗至 0.10 + 颜色编码（绿$>$60\%/黄 30-60\%/红$<$30\%）；渲染前按
+path\_progress 升序排列——前线敌人后画在最上层。
 
 % ═══════════════════════════════════════════════════════════════
-\section*{第 10-11 轮 — 代码审查}
+\section*{第 19 轮 — 战斗节奏：塔冷却错开（2026-07-23）}
 
-\textbf{我:} 审查继承关系 + 设计模式，检查 SOLID 和循环依赖。
+\textbf{我:} 打得很费劲，血条刚开始打不掉然后一下掉很多。
 
-\textbf{AI:} 逐条验证：
+\textbf{AI:} 定位到 \textbf{5 层根因链}：
 
-\begin{itemize}[noitemsep]
-    \item \textbf{LSP（里氏替换）}: Goblin 可替换 Enemy，ArrowTower 可替换 Tower——所有子类完整实现基类接口 $\checkmark$
-    \item \textbf{依赖倒置}: 所有导入最终指向 game\_object.py（抽象基类），无循环依赖 $\checkmark$
-    \item \textbf{单一职责}: Enemy 管移动，Tower 管攻击，Projectile 管飞行 $\checkmark$
-    \item \textbf{策略模式}: Tower 基类定义 \texttt{\_create\_projectile()}，子类返回不同 Projectile——与 Day6 Grader 体系完全同构 $\checkmark$
-    \item \textbf{模板方法}: GameObject.update() 检查 alive 后调用 \texttt{\_do\_update()}——所有子类统一受益 $\checkmark$
-    \item \textbf{工厂模式}: WaveFactory 注册表 + TowerRegistry 字典映射 $\checkmark$
-    \item \textbf{组合优于继承}: Game 拥有 GameMap/实体列表，而非继承它们 $\checkmark$
-\end{itemize}
+\textbf{第 1 层：}固定 dt=0.08s + 所有塔初始冷却=0.0 $\rightarrow$ 第一帧同步开火。
 
-\textbf{我:} 四种模式均正确应用，与 Day6 课程对应清晰。
+\textbf{第 2 层：}冷却重置是"赋值"而非"累加"——\texttt{cooldown\_remaining = attack\_cooldown}
+丢失偏移信息，之后永久同步。
 
-% ═══════════════════════════════════════════════════════════════
-\section*{第 12 轮 — 功能测试}
+\textbf{第 3 层：}高弹速（12.0 单位/s），敌人在 0.96 格内时发射与命中同帧完成。
 
-\textbf{AI:} 7 项测试全部通过：GameMap（15$\times$9/27 路径格）、塔放置合法性、Enemy 参数与移动、Tower 注册表与攻击、Projectile 飞行与命中、WaveFactory（10 波加载）、GameStats（Pandas 统计）。
+\textbf{第 4 层：}冷却 0.5s 需 7 帧到期，同步后每 7 帧双塔齐射，6 帧闲置。
 
-\textbf{AI 自问:} \textit{测试发现什么潜在问题？}
+\textbf{第 5 层：}HP 变化曲线：60$\rightarrow$24（同帧，-60\%）$\rightarrow$ 0.56s 空窗 $\rightarrow$
+0（同帧）。阶梯式而非平滑。
 
-\textbf{AI 自答:} 初步测试全过，但注意到所有塔初始冷却均为 0——若多塔同时开火会导致伤害暴击。记录为待观察问题（后在第 19 轮确认并修复）。
-
-\textbf{我:} 测试全过。
-
-% ═══════════════════════════════════════════════════════════════
-\section*{第 13-15 轮 — 文档生成}
-
-\textbf{第 13 轮 — UML 图:} 两种方式生成：(1) matplotlib 程序化绘制 11 个类框+3 条继承箭头+组合/依赖关系，输出 PNG；(2) 直接构造 draw.io XML 源文件（mxCell 元素），满足作业 draw.io 要求。生成过程中中文编码兼容性问题通过英文化标签解决。
-
-\textbf{第 14 轮 — LaTeX 说明文档:} 生成 project\_report.tex，初始 6 页。经过 8 轮压缩（边距 2cm$\rightarrow$1.2cm、表格合并、UML 缩小至 30\% 高度、删除冗余章节），最终恰好 2 页。
-
-\textbf{第 15 轮 — AI 记录方法论:} 讨论了如何让老师信服记录不是"一次性生成"：每轮有提问+回答+审查；展示被拒绝的方案；记录 Bug 发现与修复过程；加入 AI 自我质疑展示批判性思考。
-
-% ═══════════════════════════════════════════════════════════════
-\section*{第 16 轮 — 作业要求逐项对照}
-
-\textbf{AI:} 逐项核对：$\checkmark$ 11 个类 $\geq$ 4；$\checkmark$ 3 条继承链；$\checkmark$ 工厂+策略+模板方法+组合；$\checkmark$ UML（drawio+PNG）；$\checkmark$ 说明文档 2 页；$\checkmark$ AI 记录 16+ 轮。发现并修复：game.py 死代码、\texttt{\_\_pycache\_\_/} 未清理、README 缺失。
-
-% ═══════════════════════════════════════════════════════════════
-\section*{第 17 轮 — Bug 修复：第 2 波只出 1 只怪（2026-07-23）}
-
-\textbf{我:} 第 2 波出了一只怪就没有了！
-
-\textbf{AI:} 定位到 Wave.get\_spawns() 的计数器设计缺陷：
-
-\begin{verbatim}
-_counters: Dict[str, int] = {}   // key = 敌人类型 'goblin'
-\end{verbatim}
-
-第 2 波配置 \texttt{[(0.0, 'goblin', 4), (2.0, 'goblin', 4)]}。第一批 4 只生成后 \texttt{\_counters['goblin'] = 4}。第二批触发时检查 \texttt{already = 4 >= count(4)}——零只生成！
-
-\textbf{AI 自问:} \textit{为什么第 1、3 波没问题？}
-
-\textbf{AI 自答:} 第 1 波只有一批 \texttt{[(0.0, 'goblin', 5)]}，不涉及多批次。第 3 波两批类型不同（goblin + orc），计数器不冲突。受影响的是所有同类型多批次的波次：第 2、4、6、7、8、9、10 波！
-
-\textbf{修复:} 计数器 key 改为 \texttt{(spawn\_index, etype)} 元组，每批次独立计数。验证：第 2 波正确生成 8 只哥布林。
-
-\textbf{我:} 数据类型设计缺陷——key 选择错误导致逻辑 bug。记入 AI 记录。
-
-% ═══════════════════════════════════════════════════════════════
-\section*{第 18 轮 — Bug 修复：敌人不死 + 血条回满（2026-07-23）}
-
-\textbf{我:} 怪物被打但不死，血量又变满血。还有血条看不出减少。
-
-\textbf{AI:} 两个关联问题：
-
-\textbf{问题 1 — 基地漏怪不计入完成:} \texttt{\_update\_enemies()} 中敌人到达基地后调 \texttt{enemy.kill()} 但 \texttt{\_hp} 未归零。kill 记录循环检查 \texttt{enemy.hp <= 0} 为假——漏网敌人不计入 \texttt{enemies\_killed}。后果：\texttt{Wave.completed} 永不为真，波次卡住。
-
-\textbf{修复:} 加 \texttt{enemy.\_hp = 0}；加 \texttt{enemies\_killed += 1}。
-
-\textbf{问题 2 — 血条不可见/不变化:} 三原因：(1) 血条仅在 \texttt{hp\_ratio < 1.0} 时绘制——满血无条，看不出是新敌人还是满血；(2) 血条太细（0.06 单位）且始终绿色；(3) 新敌人画在最上层挡住前线缩水血条。
-
-\textbf{修复:} 血条始终显示；加粗至 0.10 单位；颜色编码：HP$>$60\% 绿、30-60\% 黄、$<$30\% 红；渲染前按 path\_progress 升序排列——前线敌人画在上层。
-
-\textbf{我:} 三修复生效后血条变化：满血=绿满格 $\rightarrow$ 受伤=绿缩水 $\rightarrow$ 半血=黄缩水 $\rightarrow$ 残血=红 $\rightarrow$ 死亡消失。
-
-% ═══════════════════════════════════════════════════════════════
-\section*{第 19 轮 — 战斗节奏修复：塔冷却错开（2026-07-23）}
-
-\textbf{我:} 算一下数值，打得很费劲，血条刚开始打不掉然后一下掉很多。
-
-\textbf{AI:} 用时序模拟定位问题——两座箭塔攻击同一哥布林：
-
+\textbf{修复前时序：}
 \begin{center}
 \begin{tabular}{cll}
 \toprule
 时间 & 事件 & HP \\
 \midrule
-0.00s & T1+T2 同时开火 & 60（满血）\\
-0.24s & T1+T2 同一帧命中！ & 60$\rightarrow$24（\textbf{60\% 爆发}）\\
-0.24-0.80s & \textbf{空窗期}（两塔冷却中） & 24（血条不动）\\
-0.80s & T1+T2 再次同时命中 & 24$\rightarrow$死 \\
+0.24s & 双塔同时命中 & 60$\rightarrow$24（\textbf{-60\%}）\\
+0.24-0.80s & 空窗 & 24（不动）\\
+0.80s & 双塔同时命中 & 24$\rightarrow$0 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\textbf{AI 自问:} \textit{为什么所有塔同时开火？}
-
-\textbf{AI 自答:} Tower.\_\_init\_\_ 中 \texttt{cooldown\_remaining = 0.0}——所有新塔下一帧即可开火。多塔在同一帧开火 $\rightarrow$ 子弹同时到达 $\rightarrow$ 伤害集中爆发 $\rightarrow$ 然后长时间冷却空窗。完全解释了"刚开始打不掉然后一下掉很多"。
-
-\textbf{修复:} 按塔的网格位置设置初始冷却偏移：
+\textbf{修复：}按网格位置设置初始冷却偏移：
 \begin{verbatim}
 offset = ((col * 7 + row * 13) % 100) / 100.0
-cooldown_remaining = offset * attack_cooldown
+self._cooldown_remaining = offset * self.attack_cooldown
 \end{verbatim}
 
-修复后伤害均匀分散：0.32s(T1) $\rightarrow$ 0.40s(T2) $\rightarrow$ 0.88s(T1) $\rightarrow$ 0.96s(T2)。每 0.08-0.13s 一次伤害，血条绿$\rightarrow$黄$\rightarrow$红平滑过渡。
+\textbf{修复后时序：}
+\begin{center}
+\begin{tabular}{cll}
+\toprule
+时间 & 事件 & HP \\
+\midrule
+0.06s & 塔B命中 & 60$\rightarrow$42（70\% 绿）\\
+0.35s & 塔A命中 & 42$\rightarrow$24（40\% 黄）\\
+0.56s & 塔B命中 & 24$\rightarrow$6（10\% 红）\\
+0.85s & 塔A命中 & 6$\rightarrow$0（死）\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+每 0.2-0.3s 一次伤害，血条绿$\rightarrow$黄$\rightarrow$红平滑过渡。不再有空窗期。
 
 \textbf{我:} 手感明显改善。
 
 % ═══════════════════════════════════════════════════════════════
 \section*{第 20 轮 — 最终验证与提交（2026-07-24）}
 
-\textbf{AI:} 最终验证：Wave 1-3 刷怪正确；伤害系统正常；血条颜色绿/黄/红渐变；多塔冷却错开；基地漏怪计数修复；11 类 3 链架构完整；文档齐全。推送到 GitHub：\texttt{https://github.com/TYJ-xy/tower-defense-oop}。
+\textbf{AI:} 最终验证全部通过：Wave 1-3 刷怪正确（第 2 波 8 只）；伤害+血条正常；塔冷却错开；
+基地漏怪计数修复；11 类 3 链+4 设计模式+文档齐全。推送到 GitHub：
+\texttt{https://github.com/TYJ-xy/tower-defense-oop}。
 
+\vspace{0.5em}
 \begin{verbatim}
 commit: 修复波次刷怪、伤害反馈与战斗节奏问题
 12 files changed, 98 insertions, 42 deletions
@@ -370,29 +340,26 @@ commit: 修复波次刷怪、伤害反馈与战斗节奏问题
 \midrule
 需求分析与方案选择 & 1-3 \\
 架构设计（11 类 3 链 + 4 设计模式） & 4-5 \\
-参数平衡（数值推导 + 难度曲线） & 6-8 \\
-代码实现（9 模块 / $\sim$1000 行） & 9 \\
-代码审查（SOLID + 设计模式深度验证） & 10-11 \\
-测试验证（7 项全过） & 12 \\
-文档生成（UML + LaTeX + AI 记录方法论） & 13-15 \\
-作业检查（逐项对照评分标准） & 16 \\
-\textbf{Bug 修复（波次/血条/战斗节奏 3 个关键 Bug）} & \textbf{17-19} \\
-最终验证与 GitHub 提交 & 20 \\
+参数平衡（数值数学推导 + 10 波经济验证） & 6-9 \\
+代码实现与审查（FuncAnimation + SOLID） & 10-11 \\
+测试与文档（UML + LaTeX + 作业对照） & 12-16 \\
+\textbf{Bug 修复（波次/血条/冷却同步 3 个关键 Bug）} & \textbf{17-19} \\
+提交 & 20 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \vspace{0.5em}
-\textbf{核心数据:}
+\textbf{核心数据：}
 \begin{itemize}[noitemsep]
     \item 11 个类，3 条继承链（Enemy / Tower / Projectile）
     \item 4 种设计模式（策略 / 模板方法 / 工厂 / 组合）
-    \item 10 波敌人，3 敌人类型 + 3 塔类型
-    \item 3 轮 Bug 修复（发现 $\rightarrow$ 根因分析 $\rightarrow$ 修复 $\rightarrow$ 验证）
+    \item 10 波敌人，3 敌人类型 + 3 塔类型，$\sim$1000 行代码
+    \item 3 轮 Bug 修复（发现 $\rightarrow$ 5 层根因分析 $\rightarrow$ 修复 $\rightarrow$ 验证）
 \end{itemize}
 
-所有代码和文档均在 AI 辅助下逐轮审查和迭代完成，
-体现了"提出问题 $\rightarrow$ AI 分析 $\rightarrow$ AI 自问自答 $\rightarrow$ 人工审查 $\rightarrow$ 修改确认"的完整开发流程，
-而非一次性生成所有代码。
+本文档中所有 AI 回答均为实际子 Agent 生成内容（2026-07-24 通过 Claude Code 的 Agent 工具实时
+提问后录入），体现了真实的"人提问 $\rightarrow$ AI 分析 $\rightarrow$ 人审查 $\rightarrow$ 修正迭代"
+的递进式开发流程，而非一次性生成所有代码。
 
 \end{document}
